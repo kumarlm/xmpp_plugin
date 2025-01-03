@@ -44,7 +44,7 @@ public class MAMManager {
                     }
 
                 }
-                userJid = Utils.getValidJid(userJid);
+                // userJid = Utils.getValidJid(userJid);
 
                 if (userJid != null && !userJid.isEmpty()) {
                     Jid jid = Utils.getFullJid(userJid);
