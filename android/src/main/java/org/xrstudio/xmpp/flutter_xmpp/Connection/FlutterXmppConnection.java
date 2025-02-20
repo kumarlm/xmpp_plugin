@@ -495,7 +495,7 @@ public class FlutterXmppConnection implements ConnectionListener {
         conf.setResource(mResource);
         conf.setCompressionEnabled(true);
         conf.enableDefaultDebugger();
-        connection.setReplyTimeout(10000); // 10 sec
+        conf.setReplyTimeout(10000); // 10 sec
 
         if (mRequireSSLConnection) {
             SSLContext context = null;
