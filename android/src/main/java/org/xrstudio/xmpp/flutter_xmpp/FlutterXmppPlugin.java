@@ -16,6 +16,7 @@ import org.xrstudio.xmpp.flutter_xmpp.Utils.Constants;
 import org.xrstudio.xmpp.flutter_xmpp.Utils.Utils;
 import org.xrstudio.xmpp.flutter_xmpp.managers.MAMManager;
 
+import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,6 +93,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                     case Constants.RECEIVE_MESSAGE:
 
                         String from = intent.getStringExtra(Constants.BUNDLE_FROM_JID);
+                        String messageTo = intent.getStringExtra(Constants.BUNDLE_MESSAGE_TO_JID);
                         String body = intent.getStringExtra(Constants.BUNDLE_MESSAGE_BODY);
                         String msgId = intent.getStringExtra(Constants.BUNDLE_MESSAGE_PARAMS);
                         String type = intent.getStringExtra(Constants.BUNDLE_MESSAGE_TYPE);
@@ -106,6 +108,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                         build.put(Constants.TYPE, metaInfo);
                         build.put(Constants.ID, msgId);
                         build.put(Constants.FROM, from);
+                        build.put(Constants.TO, messageTo);
                         build.put(Constants.BODY, body);
                         build.put(Constants.MSG_TYPE, type);
                         build.put(Constants.SENDER_JID, senderJid);

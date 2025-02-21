@@ -536,7 +536,9 @@ public class FlutterXmppConnection implements ConnectionListener {
                 mConnection.setUseStreamManagementResumption(true);
             }
 
+            mConnection.setReplyTimeout(10000); // 10 sec
             mConnection.login();
+
 
             setupUiThreadBroadCastMessageReceiver();
 

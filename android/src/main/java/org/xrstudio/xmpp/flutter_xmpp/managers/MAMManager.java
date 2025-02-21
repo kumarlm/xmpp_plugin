@@ -45,7 +45,7 @@ public class MAMManager {
 
                 }
                 // userJid = Utils.getValidJid(userJid);
-
+                Utils.printLog("MAM User Jid " + userJid.toString());
                 if (userJid != null && !userJid.isEmpty()) {
                     Jid jid = Utils.getFullJid(userJid);
                     queryArgs.limitResultsToJid(jid);

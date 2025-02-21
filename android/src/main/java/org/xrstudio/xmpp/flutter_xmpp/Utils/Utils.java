@@ -168,6 +168,7 @@ public class Utils {
         message = parseEventStanzaMessage(message);
         String META_TEXT = Constants.MESSAGE;
         String body = message.getBody();
+        String to = message.getTo().toString();
         String from = message.getFrom().toString();
         String msgId = message.getStanzaId();
         String customText = "";
@@ -216,6 +217,7 @@ public class Utils {
             Intent intent = new Intent(Constants.RECEIVE_MESSAGE);
             intent.setPackage(mApplicationContext.getPackageName());
             intent.putExtra(Constants.BUNDLE_FROM_JID, from);
+            intent.putExtra(Constants.BUNDLE_MESSAGE_TO_JID, to);
             intent.putExtra(Constants.BUNDLE_MESSAGE_BODY, body);
             intent.putExtra(Constants.BUNDLE_MESSAGE_PARAMS, msgId);
             intent.putExtra(Constants.BUNDLE_MESSAGE_TYPE, message.getType().toString());
@@ -250,6 +252,7 @@ public class Utils {
                         message = (Message) PacketParserUtils.parseStanza(xmlStanza);
                     }
                 }
+                System.out.println("Message: ------> " + message.toXML());
             }
         } catch (Exception e) {
             e.printStackTrace();
