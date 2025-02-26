@@ -120,6 +120,38 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                         Utils.addLogInStorage("Action: sentMessageToFlutter, Content: " + build.toString());
                         Log.d("TAG", " RECEIVE_MESSAGE-->> " + build.toString());
 
+//// Retrieve the extras from the intent
+//    Bundle extras = intent.getExtras();
+//
+//    if (extras != null) {
+//        // Create a map to store the key-value pairs from the extras
+//        Map<String, Object> extrasMap = new HashMap<>();
+//
+//        // Iterate over all the keys in the extras
+//        for (String key : extras.keySet()) {
+//            // Get the value associated with the key
+//            Object value = extras.get(key);
+//
+//            if (value != null) {
+//                // Store the key-value pair in the map
+//                extrasMap.put(key, value);
+//
+//                // Log the key and value (this prints it in Logcat)
+//                // Log.d("IntentExtra", "Key: " + key + ", Value: " + value.toString());
+//            }
+//        }
+//
+//        // Optionally: Print out all values stored in the map
+//        for (Map.Entry<String, Object> entry : extrasMap.entrySet()) {
+//            Log.d("TAG", "RECEIVE_MESSAGE-->> " + entry.getKey() + ", Value: " + entry.getValue().toString());
+//        }
+//
+//    } else {
+//        Log.d("IntentExtra", "No extras found.");
+//    }
+
+
+
                         events.success(build);
 
                         break;

@@ -98,6 +98,7 @@ public class FlutterXmppConnection implements ConnectionListener {
                 mServiceName = jid_list[1];
                 mResource = Constants.ANDROID;
             }
+            mResource = System.currentTimeMillis() + mResource;
         }
     }
 
