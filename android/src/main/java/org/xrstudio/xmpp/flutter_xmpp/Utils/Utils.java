@@ -172,6 +172,7 @@ public class Utils {
         String from = message.getFrom().toString();
         String msgId = message.getStanzaId();
         String customText = "";
+        
 
         StandardExtensionElement customElement = (StandardExtensionElement) message
                 .getExtension(Constants.URN_XMPP_CUSTOM);
@@ -227,12 +228,20 @@ public class Utils {
             intent.putExtra(Constants.META_TEXT, META_TEXT);
             intent.putExtra(Constants.time, time);
             intent.putExtra(Constants.DELAY_TIME, delayTime);
+            intent.putExtra(Constants.STANZA_ID,message.toXML());
             if (chatState != null) {
                 intent.putExtra(Constants.CHATSTATE_TYPE, chatState.toString().toLowerCase());
             }
-
             mApplicationContext.sendBroadcast(intent);
         }
+
+
+        // send stanza
+        Intent intent = new Intent(Constants.RECEIVE_MESSAGE);
+        intent.setPackage(mApplicationContext.getPackageName());
+        intent.putExtra(Constants.BUNDLE_MESSAGE_TYPE,"stanza");
+        intent.putExtra(Constants.STANZA_ID,message.toXML());
+        mApplicationContext.sendBroadcast(intent);
     }
 
     private static Message parseEventStanzaMessage(Message message) {

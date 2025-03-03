@@ -67,11 +67,14 @@ public class Constants {
     public static final String requestBefore = "requestBefore";
     public static final String requestSince = "requestSince";
     public static final String limit = "limit";
+    public static final String beforeUid = "beforeUid";
+    public static final String afterUid = "afterUid";
     public static final String typingStatus = "typingStatus";
     public static final String ChangePresenceType = "changePresenceType";
 
     public static final String TO = "to";
     public static final String FROM = "from";
+    public static final String STANZA_ID = "stanzaId";
     public static final String PRESENCE_TYPE = "presenceType";
     public static final String PRESENCE_MODE = "presenceMode";
     public static final String STOP = "STOP";

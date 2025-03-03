@@ -552,6 +552,7 @@ public class FlutterXmppConnection implements ConnectionListener {
             if (mAutomaticReconnection) {
                 ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(mConnection);
                 ReconnectionManager.setEnabledPerDefault(true);
+                ReconnectionManager.setDefaultFixedDelay(1);
                 reconnectionManager.enableAutomaticReconnection();
             }
 
@@ -698,7 +699,6 @@ public class FlutterXmppConnection implements ConnectionListener {
         intent.putExtra(Constants.BUNDLE_MESSAGE_PARAMS, Constants.AUTHENTICATED);
         intent.putExtra(Constants.BUNDLE_MESSAGE_TYPE, Constants.AUTHENTICATED);
         mApplicationContext.sendBroadcast(intent);
-
     }
 
     @Override
