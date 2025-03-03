@@ -93,6 +93,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                     case Constants.RECEIVE_MESSAGE:
 
                         String from = intent.getStringExtra(Constants.BUNDLE_FROM_JID);
+                        String stanzaId = intent.getStringExtra(Constants.STANZA_ID);
                         String messageTo = intent.getStringExtra(Constants.BUNDLE_MESSAGE_TO_JID);
                         String body = intent.getStringExtra(Constants.BUNDLE_MESSAGE_BODY);
                         String msgId = intent.getStringExtra(Constants.BUNDLE_MESSAGE_PARAMS);
@@ -116,6 +117,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                         build.put(Constants.time, time);
                         build.put(Constants.CHATSTATE_TYPE, chatStateType);
                         build.put(Constants.DELAY_TIME, delayTime);
+                        build.put(Constants.STANZA_ID,stanzaId);
 
                         Utils.addLogInStorage("Action: sentMessageToFlutter, Content: " + build.toString());
                         Log.d("TAG", " RECEIVE_MESSAGE-->> " + build.toString());
@@ -453,7 +455,6 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
             filter.addAction(Constants.PRESENCE_MESSAGE);
             activity.registerReceiver(mBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
         }
-
     }
 
     @Override
@@ -711,8 +712,10 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                 String requestBefore = call.argument(Constants.requestBefore);
                 String requestSince = call.argument(Constants.requestSince);
                 String limit = call.argument(Constants.limit);
+                String beforeUid = call.argument(Constants.beforeUid);
+                String afterUid = call.argument(Constants.afterUid);
                 Utils.printLog("userJId " + userJid + " Before : " + requestBefore + " since " + requestSince + " limit " + limit);
-                MAMManager.requestMAM(userJid, requestBefore, requestSince, limit);
+                MAMManager.requestMAM(userJid, requestBefore, requestSince, limit,afterUid,beforeUid);
                 result.success("SUCCESS");
 
                 break;
