@@ -31,7 +31,13 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware, EventChannel.StreamHandler {
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.ProcessLifecycleOwner;
+
+public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware, EventChannel.StreamHandler, DefaultLifecycleObserver {
 
     public static final Boolean DEBUG = true;
     private static Context activity;
@@ -58,6 +64,8 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
     private BroadcastReceiver connectionBroadcastReceiver = null;
     private boolean requireSSLConnection = false, autoDeliveryReceipt = false, automaticReconnection = true, useStreamManagement = true;
 
+    private Lifecycle lifecycle;
+    
     private static BroadcastReceiver get_message(final EventChannel.EventSink events) {
         return new BroadcastReceiver() {
             @Override
@@ -398,6 +406,8 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
         // destroyed due to config changes. It will be right back
         // but your plugin must clean up any references to that
         // Activity and associated resources.
+        Lifecycle lifecycle = ProcessLifecycleOwner.get().getLifecycle();
+        lifecycle.removeObserver(this);
     }
 
     @Override
@@ -425,6 +435,8 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
         // You can obtain an Activity reference with
 
         activity = binding.getActivity();
+        Lifecycle lifecycle = ProcessLifecycleOwner.get().getLifecycle();
+        lifecycle.addObserver(this); 
 
         //
         // You can listen for Lifecycle changes with
@@ -440,6 +452,13 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
         logout();
         method_channel.setMethodCallHandler(null);
         Utils.printLog(" onDetachedFromEngine: ");
+    }
+
+    @Override
+    public void onResume(@NonNull LifecycleOwner owner) {
+        Utils.printLog("onresume called");
+        // TODO: Check and implement
+        // checkAndReConnect();
     }
 
     // stream
@@ -811,8 +830,11 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
 
     // login
     private void doLogin() {
+         Utils.printLog("doLogin called");
+         Utils.printLog(FlutterXmppConnectionService.getState().toString());
         // Check if the user is already connected or not ? if not then start login process.
         if (FlutterXmppConnectionService.getState().equals(ConnectionState.DISCONNECTED)) {
+            Utils.printLog("doLogin trying login");
             Intent i = new Intent(activity, FlutterXmppConnectionService.class);
             i.putExtra(Constants.JID_USER, jid_user);
             i.putExtra(Constants.PASSWORD, password);
@@ -826,12 +848,36 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
         }
     }
 
-    private void logout() {
-        // Check if user is connected to xmpp ? if yes then break connection.
-        if (FlutterXmppConnectionService.getState().equals(ConnectionState.AUTHENTICATED)) {
-            Intent i1 = new Intent(activity, FlutterXmppConnectionService.class);
-            activity.stopService(i1);
+    // login
+    private void checkAndReConnect() {
+         Utils.printLog("checkAndReConnect called");
+         Utils.printLog(FlutterXmppConnectionService.getState().toString());
+        // Check if the user is already connected or not ? if not then start login process.
+        if ( (FlutterXmppConnectionService.getState().equals(ConnectionState.DISCONNECTED)) || FlutterXmppConnectionService.getState().equals(ConnectionState.FAILED) ) {
+            stopRunningService();
+            Utils.printLog("checkAndReConnect trying login");
+            Intent i = new Intent(activity, FlutterXmppConnectionService.class);
+            i.putExtra(Constants.JID_USER, jid_user);
+            i.putExtra(Constants.PASSWORD, password);
+            i.putExtra(Constants.HOST, host);
+            i.putExtra(Constants.PORT, Constants.PORT_NUMBER);
+            i.putExtra(Constants.AUTO_DELIVERY_RECEIPT, autoDeliveryReceipt);
+            i.putExtra(Constants.REQUIRE_SSL_CONNECTION, requireSSLConnection);
+            i.putExtra(Constants.USER_STREAM_MANAGEMENT, useStreamManagement);
+            i.putExtra(Constants.AUTOMATIC_RECONNECTION, automaticReconnection);
+            activity.startService(i);
         }
     }
 
+    private void stopRunningService(){
+        Intent i1 = new Intent(activity, FlutterXmppConnectionService.class);
+        activity.stopService(i1);
+    }
+
+    private void logout() {
+        // Check if user is connected to xmpp ? if yes then break connection.
+        if (FlutterXmppConnectionService.getState().equals(ConnectionState.AUTHENTICATED)) {
+           stopRunningService();
+        }
+    }
 }
