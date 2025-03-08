@@ -458,7 +458,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
     public void onResume(@NonNull LifecycleOwner owner) {
         Utils.printLog("onresume called");
         // TODO: Check and implement
-        // checkAndReConnect();
+        checkAndReConnect();
     }
 
     // stream
@@ -833,7 +833,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
          Utils.printLog("doLogin called");
          Utils.printLog(FlutterXmppConnectionService.getState().toString());
         // Check if the user is already connected or not ? if not then start login process.
-        if (FlutterXmppConnectionService.getState().equals(ConnectionState.DISCONNECTED)) {
+        if (FlutterXmppConnectionService.getState().equals(ConnectionState.DISCONNECTED) || FlutterXmppConnectionService.getState().equals(ConnectionState.FAILED)) {
             Utils.printLog("doLogin trying login");
             Intent i = new Intent(activity, FlutterXmppConnectionService.class);
             i.putExtra(Constants.JID_USER, jid_user);
@@ -854,6 +854,10 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
          Utils.printLog(FlutterXmppConnectionService.getState().toString());
         // Check if the user is already connected or not ? if not then start login process.
         if ( (FlutterXmppConnectionService.getState().equals(ConnectionState.DISCONNECTED)) || FlutterXmppConnectionService.getState().equals(ConnectionState.FAILED) ) {
+            Utils.printLog("checkAndReConnect trying");
+            if(jid_user == null || password == null){
+                return;
+            }
             stopRunningService();
             Utils.printLog("checkAndReConnect trying login");
             Intent i = new Intent(activity, FlutterXmppConnectionService.class);

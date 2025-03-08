@@ -735,6 +735,11 @@ public class FlutterXmppConnection implements ConnectionListener {
 
         FlutterXmppConnectionService.sConnectionState = ConnectionState.FAILED;
 
+        if (uiThreadMessageReceiver != null) {
+            mApplicationContext.unregisterReceiver(uiThreadMessageReceiver);
+            uiThreadMessageReceiver = null;
+        }
+
         Utils.broadcastConnectionMessageToFlutter(mApplicationContext, ConnectionState.FAILED, e.getLocalizedMessage());
 
         //Bundle up the intent and send the broadcast.
