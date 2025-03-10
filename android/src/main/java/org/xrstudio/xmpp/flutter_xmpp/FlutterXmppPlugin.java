@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.XMPPException;
+
 import androidx.annotation.NonNull;
 
 import org.xrstudio.xmpp.flutter_xmpp.Connection.FlutterXmppConnection;
@@ -17,6 +20,8 @@ import org.xrstudio.xmpp.flutter_xmpp.Utils.Utils;
 import org.xrstudio.xmpp.flutter_xmpp.managers.MAMManager;
 
 import android.os.Bundle;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +41,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware, EventChannel.StreamHandler, DefaultLifecycleObserver {
 
@@ -455,10 +463,28 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
     }
 
     @Override
-    public void onResume(@NonNull LifecycleOwner owner) {
+    public void onResume(@NonNull LifecycleOwner owner)  {
         Utils.printLog("onresume called");
-        // TODO: Check and implement
-        checkAndReConnect();
+       // Create a single-threaded Executor
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    // Run the reconnect operation in a background thread
+    executor.execute(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                FlutterXmppConnection.reconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Handle any exceptions related to the reconnect
+            }
+        }
+    });
+
+    // Optional: Shut down the executor after the task is done
+    executor.shutdown();
+
+        // checkAndReConnect();
     }
 
     // stream
@@ -855,11 +881,19 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
         // Check if the user is already connected or not ? if not then start login process.
         if ( (FlutterXmppConnectionService.getState().equals(ConnectionState.DISCONNECTED)) || FlutterXmppConnectionService.getState().equals(ConnectionState.FAILED) ) {
             Utils.printLog("checkAndReConnect trying");
-            if(jid_user == null || password == null){
+            Utils.printLog(jid_user);
+            Utils.printLog(password);
+            if(jid_user == null || password == null || jid_user == "" || password == ""){
                 return;
             }
             stopRunningService();
             Utils.printLog("checkAndReConnect trying login");
+
+
+            Utils.broadcastConnectionMessageToFlutter(activity,ConnectionState.CONNECTING, "Connecting to chat server");
+            Utils.printLog("checkAndReConnect() : Connecting to chat server ");
+
+
             Intent i = new Intent(activity, FlutterXmppConnectionService.class);
             i.putExtra(Constants.JID_USER, jid_user);
             i.putExtra(Constants.PASSWORD, password);
