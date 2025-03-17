@@ -220,7 +220,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
     // Sending a message to one-one chat.
     public static void sendMessage(String body, String toUser, String msgId, String method, String time) {
 
-        if (FlutterXmppConnectionService.getState().equals(ConnectionState.AUTHENTICATED)) {
+        // if (FlutterXmppConnectionService.getState().equals(ConnectionState.AUTHENTICATED)) {
 
             if (method.equals(Constants.SEND_GROUP_MESSAGE)) {
                 Intent intent = new Intent(Constants.GROUP_SEND_MESSAGE);
@@ -239,7 +239,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
 
                 activity.sendBroadcast(intent);
             }
-        }
+        // }
     }
 
     public static void sendCustomMessage(String body, String toUser, String msgId, String customText, String time) {
