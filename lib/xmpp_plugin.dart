@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:xmpp_plugin/ennums/xmpp_connection_state.dart';
 import 'package:xmpp_plugin/error_response_event.dart';
@@ -32,6 +33,12 @@ abstract class DataChangeEvents {
   void onXmppError(ErrorResponseEvent errorResponseEvent);
 }
 
+abstract class StanzaEventListener {
+  void onChatMessage(MessageChat messageChat);
+
+  void onStanza(Map<Object?, Object?> stanza);
+}
+
 class XmppConnection {
   static const MethodChannel _channel = MethodChannel('flutter_xmpp/method');
   static const EventChannel _eventChannel = EventChannel('flutter_xmpp/stream');
@@ -43,6 +50,8 @@ class XmppConnection {
   static late StreamSubscription connectionEventStream;
   static late StreamSubscription errorEventStream;
   static List<DataChangeEvents> dataChangelist = <DataChangeEvents>[];
+  static List<StanzaEventListener> stanzaEventListener =
+      <StanzaEventListener>[];
 
   dynamic auth;
 
@@ -51,6 +60,18 @@ class XmppConnection {
   static void addListener(DataChangeEvents dataChangeA) {
     if (!dataChangelist.contains(dataChangeA)) {
       dataChangelist.add(dataChangeA);
+    }
+  }
+
+  static void addStanzaListener(StanzaEventListener dataChangeA) {
+    if (!stanzaEventListener.contains(dataChangeA)) {
+      stanzaEventListener.add(dataChangeA);
+    }
+  }
+
+  static void removeStanzaListener(StanzaEventListener dataChangeA) {
+    if (stanzaEventListener.contains(dataChangeA)) {
+      stanzaEventListener.remove(dataChangeA);
     }
   }
 
@@ -128,6 +149,21 @@ class XmppConnection {
       (dataEvent) {
         MessageEvent eventModel = MessageEvent.fromJson(dataEvent);
         MessageChat messageChat = MessageChat.fromJson(dataEvent);
+        if (eventModel.type == 'fin' ||
+            eventModel.msgtype == 'stanza' ||
+            eventModel.msgtype == 'chat') {
+          // StanzaEventListener
+          stanzaEventListener.forEach((listener) {
+            if (eventModel.type == 'fin') {
+              listener.onStanza(dataEvent);
+            } else if (eventModel.msgtype == 'stanza') {
+              listener.onStanza(dataEvent);
+            } else if (eventModel.msgtype == 'chat') {
+              listener.onChatMessage(messageChat);
+            }
+          });
+        }
+
         dataChangelist.forEach((element) {
           if (eventModel.msgtype == 'stanza') {
             element.onStanza(dataEvent);
@@ -144,6 +180,9 @@ class XmppConnection {
           } else if (eventModel.type == 'chatstate') {
             ChatState chatState = ChatState.fromJson(dataEvent);
             element.onChatStateChange(chatState);
+          }
+          else if (eventModel.type == 'fin') {
+            element.onStanza(dataEvent);
           }
         });
       },

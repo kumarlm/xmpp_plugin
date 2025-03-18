@@ -155,6 +155,7 @@ public class Constants {
     public static final String READ_MESSAGE = "org.xrstudio.xmpp.flutter_xmpp.readmessage";
     public static final String X_SEND_MESSAGE = "org.xrstudio.xmpp.flutter_xmpp.sendmessage";
     public static final String RECEIVE_MESSAGE = "org.xrstudio.xmpp.flutter_xmpp.receivemessage";
+    public static final String RECEIVE_FIN_MESSAGE = "org.xrstudio.xmpp.flutter_xmpp.receivefinmessage";
     public static final String CONNECTION_MESSAGE = "org.xrstudio.xmpp.flutter_xmpp.connmessage";
     public static final String OUTGOING_MESSAGE = "org.xrstudio.xmpp.flutter_xmpp.outgoinmessage";
     public static final String PRESENCE_MESSAGE = "org.xrstudio.xmpp.flutter_xmpp.presencemessage";

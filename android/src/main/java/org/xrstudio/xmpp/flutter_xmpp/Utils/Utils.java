@@ -301,4 +301,12 @@ public class Utils {
         intent.putExtra(Constants.BUNDLE_CONNECTION_ERROR, errorMessage);
         mApplicationContext.sendBroadcast(intent);
     }
+
+    public static void broadcastFinMessageToFlutter(Context mApplicationContext,String message) {
+        System.out.println("broadcastFinMessageToFlutter: ------> " + message);
+        Intent intent = new Intent(Constants.RECEIVE_FIN_MESSAGE);
+        intent.setPackage(mApplicationContext.getPackageName());
+        intent.putExtra("fin_data", message);
+        mApplicationContext.sendBroadcast(intent);
+    }
 }

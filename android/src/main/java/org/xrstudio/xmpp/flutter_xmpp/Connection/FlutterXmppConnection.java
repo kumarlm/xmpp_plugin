@@ -60,6 +60,19 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.StanzaListener;
+import org.jivesoftware.smack.filter.StanzaFilter;
+import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.SmackException.NotLoggedInException;
+import org.jivesoftware.smack.SmackException.NotConnectedException;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+
 public class FlutterXmppConnection implements ConnectionListener {
 
     public static String mHost;
@@ -530,8 +543,79 @@ public class FlutterXmppConnection implements ConnectionListener {
 
             mConnection = new XMPPTCPConnection(conf.build());
             mConnection.addConnectionListener(this);
+            // Example of handling incoming IQ queries for <fin> message
+           
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            mConnection.addAsyncStanzaListener(new StanzaListener() {
+                @Override
+                public void processStanza(Stanza packet) throws NotLoggedInException, NotConnectedException {
+                    if (packet instanceof Message) {
+                        Message message = (Message) packet;
+                        String messageBody = message.getBody();
+                        if (messageBody != null && messageBody.contains("<fin>")) {
+                            // Handle <fin> message here
+                            Log.d("XMPP", "Received <fin> message: " + messageBody);
+
+                            // Optionally, broadcast the <fin> message to other parts of the app
+                            // Intent intent = new Intent("org.xrstudio.xmpp.flutter_xmpp.receivefinmessage");
+                            // intent.putExtra("fin_data", messageBody);
+                            // context.sendBroadcast(intent);
+                        }
+                    } else if (packet instanceof IQ) {
+                        IQ iq = (IQ) packet;
+                        String iqData = iq.toXML().toString();
+                        Log.d("XMPP", "Received <fin> IQ message: " + iqData);
+                        // if (iqData.contains("<fin>")) {
+                            // Handle <fin> IQ message here
+                            Log.d("XMPP_PLUGIN", "Received <fin> IQ message: " + iqData);
+
+                            // Intent intent = new Intent("receivefinmessage");
+                            // intent.putExtra("fin_data", iqData);
+                            // mApplicationContext.sendBroadcast(intent);
+
+                            Utils.broadcastFinMessageToFlutter(mApplicationContext,iqData);
+                            // Intent intent = new Intent(Constants.RECEIVE_FIN_MESSAGE);
+                            // intent.setPackage(mApplicationContext.getPackageName());
+                            // // intent.putExtra(Constants.BUNDLE_CONNECTION_TYPE, connectionState.toString());
+                            // intent.putExtra("fin_data", iqData);
+                            // mApplicationContext.sendBroadcast(intent);
+
+                            // Optionally, send a response to the IQ message
+                            // IQ iqResponse = IQ.createResultIQ(iq);
+                            // iqResponse.setChildElement("<finResponse xmlns='urn:example:iq'>Processed <fin></finResponse>");
+                            // connection.sendStanza(iqResponse);
+                        // }
+                    }
+                }
+            }, new StanzaFilter() {
+                @Override
+                public boolean accept(Stanza stanza) {
+                    // Accept both IQ and Message stanzas (or just IQ if needed)
+                    return stanza instanceof IQ;
+                    // return stanza instanceof Message || stanza instanceof IQ;
+                }
+            });
 
             Utils.printLog(" Calling connect(): ");
             mConnection.connect();

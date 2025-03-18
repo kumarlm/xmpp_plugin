@@ -79,6 +79,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
+                // Log.d("TAG", "RECEIVE_MESSAGE ACTIONNN-->> " + action.toString());
                 switch (action) {
 
                     // Handle the connection events.
@@ -108,6 +109,9 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                     // Handle receiving message events.
                     case Constants.RECEIVE_MESSAGE:
 
+                        // Log.d("TAG", "RECEIVE_MESSAGE TOTALLLLLLL-->> " + intent.getStringExtra("fin"));
+
+
                         String from = intent.getStringExtra(Constants.BUNDLE_FROM_JID);
                         String stanzaId = intent.getStringExtra(Constants.STANZA_ID);
                         String messageTo = intent.getStringExtra(Constants.BUNDLE_MESSAGE_TO_JID);
@@ -136,7 +140,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                         build.put(Constants.STANZA_ID,stanzaId);
 
                         Utils.addLogInStorage("Action: sentMessageToFlutter, Content: " + build.toString());
-                        Log.d("TAG", " RECEIVE_MESSAGE-->> " + build.toString());
+                        // Log.d("TAG", " RECEIVE_MESSAGE-->> " + build.toString());
 
 //// Retrieve the extras from the intent
 //    Bundle extras = intent.getExtras();
@@ -210,6 +214,16 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                         Utils.printLog("presenceBuild: " + presenceBuild);
 
                         events.success(presenceBuild);
+                        break;
+
+                    case Constants.RECEIVE_FIN_MESSAGE:
+                        String data = intent.getStringExtra("fin_data");
+                        
+                        Map<String, Object> finBuild = new HashMap<>();
+                        finBuild.put(Constants.TYPE,"fin");
+                        finBuild.put("data", data);
+                        Utils.printLog("Fin data: " + finBuild);
+                        events.success(finBuild);
                         break;
 
                 }
@@ -498,6 +512,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
             filter.addAction(Constants.RECEIVE_MESSAGE);
             filter.addAction(Constants.OUTGOING_MESSAGE);
             filter.addAction(Constants.PRESENCE_MESSAGE);
+            filter.addAction(Constants.RECEIVE_FIN_MESSAGE);
             activity.registerReceiver(mBroadcastReceiver, filter, Context.RECEIVER_EXPORTED);
         }
     }
@@ -916,6 +931,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
         // Check if user is connected to xmpp ? if yes then break connection.
         if (FlutterXmppConnectionService.getState().equals(ConnectionState.AUTHENTICATED)) {
            stopRunningService();
+           FlutterXmppConnection.getConnection().disconnect();
         }
     }
 }
