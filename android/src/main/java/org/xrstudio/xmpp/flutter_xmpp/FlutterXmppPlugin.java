@@ -931,7 +931,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
         // Check if user is connected to xmpp ? if yes then break connection.
         if (FlutterXmppConnectionService.getState().equals(ConnectionState.AUTHENTICATED)) {
            stopRunningService();
-           FlutterXmppConnection.getConnection().disconnect();
+           FlutterXmppConnection.logout();
         }
     }
 }

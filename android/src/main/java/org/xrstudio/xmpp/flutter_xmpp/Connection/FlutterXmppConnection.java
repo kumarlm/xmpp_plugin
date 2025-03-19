@@ -89,7 +89,7 @@ public class FlutterXmppConnection implements ConnectionListener {
 
 
     ReconnectionManager reconnectionManager;
-    private BroadcastReceiver uiThreadMessageReceiver;//Receives messages from the ui thread.
+    private static BroadcastReceiver uiThreadMessageReceiver;//Receives messages from the ui thread.
 
     public FlutterXmppConnection(Context context, String jid_user, String password, String host, Integer port, boolean requireSSLConnection,
                                  boolean autoDeliveryReceipt, boolean useStreamManagement, boolean automaticReconnection) {
@@ -125,6 +125,21 @@ public class FlutterXmppConnection implements ConnectionListener {
 
     public static XMPPTCPConnection getConnection() {
         return mConnection == null ? new XMPPTCPConnection(null) : mConnection;
+    }
+
+    public static void logout() {
+         Utils.printLog(" Disconnecting from server: " + mServiceName);
+
+        if (mConnection != null) {
+            mConnection.disconnect();
+            mConnection = null;
+        }
+
+        // Unregister the message broadcast receiver.
+        if (uiThreadMessageReceiver != null) {
+            mApplicationContext.unregisterReceiver(uiThreadMessageReceiver);
+            uiThreadMessageReceiver = null;
+        }
     }
 
     public static XMPPTCPConnection getCurrentConnection(){
@@ -679,7 +694,6 @@ public class FlutterXmppConnection implements ConnectionListener {
         }
         finally{
             Utils.broadcastConnectionMessageToFlutter(mApplicationContext,ConnectionState.AUTHENTICATED, "Connecting after activity resume");
-
         }
     }
 
