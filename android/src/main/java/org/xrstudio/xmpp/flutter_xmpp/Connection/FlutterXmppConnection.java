@@ -577,11 +577,6 @@ public class FlutterXmppConnection implements ConnectionListener {
 
 
 
-
-
-
-
-
             mConnection.addAsyncStanzaListener(new StanzaListener() {
                 @Override
                 public void processStanza(Stanza packet) throws NotLoggedInException, NotConnectedException {
@@ -795,6 +790,15 @@ public class FlutterXmppConnection implements ConnectionListener {
         }
     }
 
+
+    @Override
+    public void connecting(XMPPConnection connection){
+        Utils.printLog(" Connecting(): ");
+        FlutterXmppConnectionService.sConnectionState = ConnectionState.CONNECTING;
+        Utils.broadcastConnectionMessageToFlutter(mApplicationContext, ConnectionState.CONNECTING, "");
+    }
+
+
     @Override
     public void connected(XMPPConnection connection) {
         Utils.printLog(" Connected Successfully: ");
@@ -817,8 +821,9 @@ public class FlutterXmppConnection implements ConnectionListener {
     @Override
     public void authenticated(XMPPConnection connection, boolean resumed) {
         Utils.printLog(" Flutter Authenticated Successfully: ");
-
-        multiUserChatManager = MultiUserChatManager.getInstanceFor(connection);
+        if(!resumed){
+         multiUserChatManager = MultiUserChatManager.getInstanceFor(connection);
+        }
         FlutterXmppConnectionService.sConnectionState = ConnectionState.AUTHENTICATED;
 //        showContactListActivityWhenAuthenticated();
 

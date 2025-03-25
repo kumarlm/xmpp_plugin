@@ -82,7 +82,10 @@ public class FlutterXmppConnectionService extends Service {
 
     public void start() {
 
-        Utils.printLog(" Service Start() function called: ");
+        Utils.printLog(" Service Start() function called:");
+        Utils.printLog("mActive: " + mActive);
+        Utils.printLog("mThread is null: " + (mThread == null));
+        Utils.printLog("mThread is alive: " + (mThread != null && mThread.isAlive()));
 
         if (!mActive) {
             mActive = true;

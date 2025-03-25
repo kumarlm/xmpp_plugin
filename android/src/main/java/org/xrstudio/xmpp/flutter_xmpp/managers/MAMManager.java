@@ -10,11 +10,16 @@ import org.xrstudio.xmpp.flutter_xmpp.Utils.Utils;
 import java.util.Date;
 import java.util.List;
 
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.StandardExtensionElement;  // Import for custom extension
+import org.xrstudio.xmpp.flutter_xmpp.Utils.Utils;
+import android.content.Context;
+
 public class MAMManager {
 
 
     public static void requestMAM(String userJid, String requestBefore, String requestSince, String limit,
-    String afterUid, String beforeUid) {
+    String afterUid, String beforeUid, String queryId) {
 
         XMPPTCPConnection connection = FlutterXmppConnection.getConnection();
 
@@ -61,11 +66,27 @@ public class MAMManager {
                     queryArgs.limitResultsToJid(jid);
                 }
 
-                Utils.printLog("MAM query Args " + queryArgs.toString());
+
+                  // Generate a unique query ID
+                // String queryId = "mam-" + UUID.randomUUID();
+                // queryArgs.queryId("queryId");
+
+                // Utils.printLog("MAM Query ID: " + queryId);
+                Utils.printLog("MAM Query Args: " + queryArgs.toString());
+
+
+
                 org.jivesoftware.smackx.mam.MamManager.MamQuery query = mamManager.queryArchive(queryArgs.build());
                 List<Message> messageList = query.getMessages();
 
                 for (Message message : messageList) {
+                  StandardExtensionElement queryIdExtension = StandardExtensionElement.builder("queryId", "urn:xmpp:mam:2")
+                    .setText(queryId)
+                    .build();
+
+                    // Add the extension to the message
+                    message.addExtension(queryIdExtension);
+
                     Utils.printLog("Received Message " + message.toXML());
                     Utils.broadcastMessageToFlutter(FlutterXmppConnection.getApplicationContext(), message);
                 }

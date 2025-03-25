@@ -39,7 +39,7 @@ configurations {
 
 ext {
     // smackVersion = '4.3.4'
-    smackVersion = '4.4.6'
+    smackVersion = '4.4.8'
 }
 
 

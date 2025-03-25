@@ -774,8 +774,9 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
                 String limit = call.argument(Constants.limit);
                 String beforeUid = call.argument(Constants.beforeUid);
                 String afterUid = call.argument(Constants.afterUid);
+                String queryId = call.argument(Constants.queryId);
                 Utils.printLog("userJId " + userJid + " Before : " + requestBefore + " since " + requestSince + " limit " + limit);
-                MAMManager.requestMAM(userJid, requestBefore, requestSince, limit,afterUid,beforeUid);
+                MAMManager.requestMAM(userJid, requestBefore, requestSince, limit,afterUid,beforeUid, queryId);
                 result.success("SUCCESS");
 
                 break;
@@ -874,7 +875,8 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
          Utils.printLog("doLogin called");
          Utils.printLog(FlutterXmppConnectionService.getState().toString());
         // Check if the user is already connected or not ? if not then start login process.
-        if (FlutterXmppConnectionService.getState().equals(ConnectionState.DISCONNECTED) || FlutterXmppConnectionService.getState().equals(ConnectionState.FAILED)) {
+        // if (FlutterXmppConnectionService.getState().equals(ConnectionState.DISCONNECTED) || FlutterXmppConnectionService.getState().equals(ConnectionState.FAILED)) {
+            logout();
             Utils.printLog("doLogin trying login");
             Intent i = new Intent(activity, FlutterXmppConnectionService.class);
             i.putExtra(Constants.JID_USER, jid_user);
@@ -886,7 +888,7 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
             i.putExtra(Constants.USER_STREAM_MANAGEMENT, useStreamManagement);
             i.putExtra(Constants.AUTOMATIC_RECONNECTION, automaticReconnection);
             activity.startService(i);
-        }
+        // }
     }
 
     // login
@@ -929,9 +931,14 @@ public class FlutterXmppPlugin implements MethodCallHandler, FlutterPlugin, Acti
 
     private void logout() {
         // Check if user is connected to xmpp ? if yes then break connection.
-        if (FlutterXmppConnectionService.getState().equals(ConnectionState.AUTHENTICATED)) {
-           stopRunningService();
-           FlutterXmppConnection.logout();
+        // if (FlutterXmppConnectionService.getState().equals(ConnectionState.AUTHENTICATED)) {
+        //    stopRunningService();
+        // }
+        try {
+            stopRunningService();
+            FlutterXmppConnection.logout();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -10,3 +10,4 @@ example/.env
 *.lock
 
 build/
+.qodo

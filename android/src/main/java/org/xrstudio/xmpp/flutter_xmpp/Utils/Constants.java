@@ -71,6 +71,7 @@ public class Constants {
     public static final String afterUid = "afterUid";
     public static final String typingStatus = "typingStatus";
     public static final String ChangePresenceType = "changePresenceType";
+    public static final String queryId = "queryId";
 
     public static final String TO = "to";
     public static final String FROM = "from";

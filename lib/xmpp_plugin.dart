@@ -370,15 +370,18 @@ class XmppConnection {
       String requestBefore,
       String limit,
       String? beforeUid,
-      String? afterUid) async {
-    print(" Plugin : User Jid : $userJid , Request since : $requestSince , Request Before : $requestBefore, Limit : $limit ");
+      String? afterUid,
+      String? queryId) async {
+    print(
+        " Plugin : User Jid : $userJid , Request since : $requestSince , Request Before : $requestBefore, Limit : $limit , beforeUid: $beforeUid, afterUid: $afterUid, queryId: $queryId");
     final params = {
       "userJid": userJid,
       "requestBefore": requestBefore,
       "requestSince": requestSince,
       "limit": limit,
       "beforeUid": beforeUid,
-      "afterUid": afterUid
+      "afterUid": afterUid,
+      "queryId": queryId ?? ""
     };
     await _channel.invokeMethod('request_mam', params);
   }
