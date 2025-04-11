@@ -559,24 +559,6 @@ public class FlutterXmppConnection implements ConnectionListener {
             mConnection = new XMPPTCPConnection(conf.build());
             mConnection.addConnectionListener(this);
             // Example of handling incoming IQ queries for <fin> message
-           
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             mConnection.addAsyncStanzaListener(new StanzaListener() {
                 @Override
                 public void processStanza(Stanza packet) throws NotLoggedInException, NotConnectedException {

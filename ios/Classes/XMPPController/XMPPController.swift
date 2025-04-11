@@ -52,9 +52,9 @@ class XMPPController : NSObject {
 
         /// Stream Configuration
         self.xmppStream = XMPPStream.init()
-        self.xmppStream.hostName = hostName
-        self.xmppStream.hostPort = UInt16(hostPort)
-        self.xmppStream.myJID = userJID
+        self.xmppStream.hostName = self.hostName
+        self.xmppStream.hostPort = 5222
+        self.xmppStream.myJID = self.userJID
 
         //SSL Connection
         if xmpp_RequireSSLConnection {
@@ -171,6 +171,7 @@ class XMPPController : NSObject {
 extension XMPPController: XMPPStreamDelegate, XMPPMUCLightDelegate  {
     //MARK:- stream Connect
     func xmppStreamDidConnect(_ stream: XMPPStream) {
+        print("\(#function) | XMPP Connected - Yes")
         if self.password.isEmpty {
             print("\(#function) | XMPP User password is empty/nil.")
             return
@@ -184,14 +185,14 @@ extension XMPPController: XMPPStreamDelegate, XMPPMUCLightDelegate  {
     }
 
     func xmppStreamDidDisconnect(_ sender: XMPPStream, withError error: Error?) {
-
+        print("\(#function) | XMPP DisConnected - Yes \(error)")
         self.changeStatus(.Offline, withXMPPStrem: sender)
         APP_DELEGATE.objXMPPConnStatus = .Disconnect
     }
 
     //MARK:- Authenticate
     func xmppStreamDidAuthenticate(_ sender: XMPPStream) {
-
+        print("\(#function) | XMPP Authenticate - Yes ")
         if xmpp_UseStream {
             self.configureStreamManagement()
         }
@@ -201,6 +202,7 @@ extension XMPPController: XMPPStreamDelegate, XMPPMUCLightDelegate  {
     }
 
     func xmppStream(_ sender: XMPPStream, didNotAuthenticate error: DDXMLElement) {
+        print("\(#function) | XMPP Not Authenticate - Yes \(error)")
         APP_DELEGATE.objXMPPConnStatus = .Failed
         //self.xmppStreamDidConnect(sender)
     }
@@ -210,17 +212,13 @@ extension XMPPController: XMPPStreamDelegate, XMPPMUCLightDelegate  {
 extension XMPPController {
     //MARK: XMPPMessage delegate methods
     func xmppStream(_ sender: XMPPStream, didSend message: XMPPMessage) {
+        
         printLog("\(#function) | didSend message: \(message)")
-    }
-
-    func xmppStream(_ sender: XMPPStream, didReceive message: XMPPMessage) {
-        addLogger(.receiveMessageFromServer, message)
-        printLog("\(#function) | didReceive message: \(message)")
-
+        message.addAttribute(withName: "from", stringValue: sender.myJID?.bare ?? "")
         //------------------------------------------------------------------------
         // Manange MAM Message
         if let objMessMAM = message.mamResult?.forwardedMessage  {
-            self.manageMAMMessage(message: objMessMAM)
+            self.manageMAMMessage(message: message)
             return
         }
 
@@ -240,7 +238,48 @@ extension XMPPController {
         let vMessType : String = (objMess.type ?? xmppChatType.NORMAL).trim()
         switch vMessType {
 
-        case xmppChatType.NORMAL:
+        case xmppChatType.NORMAL, xmppChatType.STANZA:
+            if(body.isEmpty != true){
+                self.handel_ChatMessage(objMess, withType: vMessType, withStrem: sender)
+            }
+
+            self.handelNormalChatMessage(objMess, withStrem: sender)
+            break;
+
+        default:
+            self.handel_ChatMessage(objMess, withType: vMessType, withStrem: sender)
+        }
+
+    }
+
+    func xmppStream(_ sender: XMPPStream, didReceive message: XMPPMessage) {
+        addLogger(.receiveMessageFromServer, message)
+        printLog("\(#function) | didReceive message: \(message)")
+
+        //------------------------------------------------------------------------
+        // Manange MAM Message
+        if let objMessMAM = message.mamResult?.forwardedMessage  {
+            self.manageMAMMessage(message: message)
+            return
+        }
+
+        //------------------------------------------------------------------------
+        var tempMessage: XMPPMessage? = message
+        if let objMess = manage_MucSubMesage(message) {
+            // Manange and Get MUCSUB Message
+            tempMessage = objMess
+        }
+        guard let objMess = tempMessage else { return }
+
+        let body = (objMess.body ?? "").trim();
+        printLog("\(#function) | message body : \(body)")
+
+        //------------------------------------------------------------------------
+        //Other Chat message received
+        let vMessType : String = (objMess.type ?? xmppChatType.NORMAL).trim()
+        switch vMessType {
+
+        case xmppChatType.NORMAL, xmppChatType.STANZA:
             if(body.isEmpty != true){
                 self.handel_ChatMessage(objMess, withType: vMessType, withStrem: sender)
             }

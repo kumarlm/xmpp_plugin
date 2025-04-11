@@ -14,6 +14,7 @@ class Message {
     var message : String = ""
     var senderJid : String = ""
     var time : String = "0"
+    var to : String = ""
     
     //MARK:-
     private struct keys {
@@ -22,6 +23,7 @@ class Message {
         static let message = "message"
         static let senderJid = "senderJid"
         static let time = "time"
+        static let to = "to"
     } 
     
     //MARK:-
@@ -35,6 +37,7 @@ class Message {
         self.message = data[keys.message] as? String ?? ""
         self.senderJid = data[keys.senderJid] as? String ?? ""
         self.time = data[keys.time] as? String ?? self.time
+        self.to = data[keys.to] as? String ?? self.to
     }
     
     public func toDictionary() -> [String: Any] {
@@ -44,6 +47,7 @@ class Message {
         dict[keys.message] = message
         dict[keys.senderJid] = senderJid
         dict[keys.time] = time
+        dict[keys.to] = to
         return dict
     }
     
@@ -58,6 +62,7 @@ class Message {
         let vMessage_ID : String = (message.elementID ?? "").trim()
         var vSender_ID : String = ""
         var vJID : String = ""
+        var to : String = ""
         
         let vMessType : String = message.type ?? ""
         switch vMessType {
@@ -67,6 +72,7 @@ class Message {
         case xmppChatType.CHAT:
             vSender_ID = (message.fromStr ?? "").trim()
             vJID = (message.toStr ?? "").trim()
+            to = (message.toStr ?? "").trim()
         default:
             vSender_ID = ""
         }
@@ -74,6 +80,7 @@ class Message {
         self.id = vMessage_ID
         self.jid = vJID
         self.senderJid = vSender_ID
+        self.to = to
     }
     
     private func setText(message: XMPPMessage) {

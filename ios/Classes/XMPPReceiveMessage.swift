@@ -33,12 +33,19 @@ extension XMPPController {
         let dicDate = ["type" : pluginMessType.Message,
                        "id" : objMess.id,
                        "from" : objMess.senderJid,
+                       "to": objMess.to,
                        "body" : objMess.message,
                        "customText" : customElement,
                        "msgtype" : vMessType,
                        "senderJid": objMess.senderJid,
                        "time" : objMess.time] as [String : Any]
         APP_DELEGATE.objEventData!(dicDate)
+
+        // Send stanza
+        let rawMessage = message.xmlString
+        let rawMessageData = ["type": "stanza","msgtype": "stanza", "data": rawMessage] as [String: Any]
+        self.broadCastMessageToFlutter(dicData: rawMessageData)
+        APP_DELEGATE.objEventData!(rawMessageData)
     }
     
     func handelNormalChatMessage(_ message: XMPPMessage, withStrem : XMPPStream) {
@@ -84,6 +91,14 @@ extension XMPPController {
 
             APP_DELEGATE.objEventData!(dicData)
             self.broadCastMessageToFlutter(dicData: dicData)
+
+            // Send stanza
+            let rawMessage = message.xmlString
+            let rawMessageData = ["type": "stanza",
+                                "msgtype": "stanza",
+                                  "data": rawMessage] as [String: Any]
+            APP_DELEGATE.objEventData!(rawMessageData)
+            self.broadCastMessageToFlutter(dicData: rawMessageData)
 
     }
 }

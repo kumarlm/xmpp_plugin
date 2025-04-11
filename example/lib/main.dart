@@ -35,6 +35,11 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp>
     with WidgetsBindingObserver
     implements DataChangeEvents {
+  @override
+  void onStanza(dynamic stanza) {
+    // TODO: Handle the stanza event
+    log('onStanza received: $stanza');
+  }
   static late XmppConnection flutterXmpp;
   List<MessageChat> events = [];
   List<PresentModel> presentMo = [];

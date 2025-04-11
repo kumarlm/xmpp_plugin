@@ -33,6 +33,12 @@ extension XMPPController {
                                                                 andValue: xmppDateString)
             fields.append(dateBefore)
         }
+
+        // Query ID
+        let queryId = UUID().uuidString
+        let queryIdField = XMLElement(name: "query", xmlns: "urn:xmpp:mam:2")
+        queryIdField.addAttribute(withName: "queryid", stringValue: queryId)
+        // fields.append(queryIdField)
         
         // Since
         if tsSince > 0 {
@@ -64,17 +70,34 @@ extension XMPPController {
         printLog("\(#function) | req mam: since \(tsSince) | JIDString: \(jidString) | Limit \(defaultLimit)")
   
          let xmppRS : XMPPResultSet = XMPPResultSet(max: defaultLimit)
+        let beforeElement = XMLElement(name: "before")
+        xmppRS.addChild(beforeElement)
          objXMPP.xmppMAM?.retrieveMessageArchive (at: nil, withFields: fields, with:xmppRS)
        
     }
     
     func manageMAMMessage(message: XMPPMessage) {
+        // get queryId
         printLog("\(#function) | Manange MAMMessage | message: \(message)")
+
+        guard let objMessMAM = message.mamResult?.forwardedMessage else {
+            printLog("\(#function) | Not getting forwardedMessage in MAM | message: \(message)")
+            return
+        }
+        let modifiedMessage = objMessMAM
+
         
-        let vMessType : String = (message.type ?? xmppChatType.NORMAL).trim()
+        let vMessType : String = (modifiedMessage.type ?? xmppChatType.NORMAL).trim()
         switch vMessType {
-        case xmppChatType.CHAT, xmppChatType.GROUPCHAT:
-            self.handel_ChatMessage(message, withType: vMessType, withStrem: self.xmppStream)
+        case xmppChatType.CHAT, xmppChatType.GROUPCHAT, xmppChatType.STANZA:
+            if let resultElement = message.elements(forName: "result").first,
+                let queryId = resultElement.attribute(forName: "queryid")?.stringValue {
+                 let queryIdElement = XMLElement(name: "queryId", stringValue: queryId)
+                  print("queryMessage Got : \(modifiedMessage)")
+                 modifiedMessage.addChild(queryIdElement)
+            }
+            print("queryMessage : \(modifiedMessage)")
+            self.handel_ChatMessage(modifiedMessage, withType: vMessType, withStrem: self.xmppStream)
             
         default:
             break
@@ -100,11 +123,11 @@ extension XMPPController {
     }
     
     func xmppMessageArchiveManagement(_ xmppMessageArchiveManagement: XMPPMessageArchiveManagement, didReceiveMAMMessage message: XMPPMessage) {
-        guard let objMessMAM = message.mamResult?.forwardedMessage else {
-            printLog("\(#function) | Not getting forwardedMessage in MAM | message: \(message)")
-            return
-        }
-        self.manageMAMMessage(message: objMessMAM)
+        // guard let objMessMAM = message.mamResult?.forwardedMessage else {
+        //     printLog("\(#function) | Not getting forwardedMessage in MAM | message: \(message)")
+        //     return
+        // }
+        self.manageMAMMessage(message: message)
     }
     
     func xmppMessageArchiveManagement(_ xmppMessageArchiveManagement: XMPPMessageArchiveManagement, didFinishReceivingMessagesWith resultSet: XMPPResultSet) {

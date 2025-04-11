@@ -101,7 +101,7 @@ class _MamExamplesState extends State<MamExamples> {
 
   void _requestMamMessages(userJid, requestSince, requestBefore, limit) {
     widget.flutterXmpp.requestMamMessages(
-        userJid, requestSince, requestBefore, limit, null, null);
+        userJid, requestSince, requestBefore, limit, null, null, null);
   }
 
   void _changeTypingStatus(userJid, typingStatus) {

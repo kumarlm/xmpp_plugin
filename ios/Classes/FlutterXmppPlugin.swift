@@ -242,6 +242,8 @@ public class FlutterXmppPlugin: NSObject, FlutterPlugin {
     }
     
     func performSendMessageActivity(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        print("send message")
+        
         guard let vData = call.arguments as? [String : Any] else {
             result(xmppConstants.ERROR)
             return
