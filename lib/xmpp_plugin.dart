@@ -149,6 +149,7 @@ class XmppConnection {
       (dataEvent) {
         MessageEvent eventModel = MessageEvent.fromJson(dataEvent);
         MessageChat messageChat = MessageChat.fromJson(dataEvent);
+        print("dataEvent ===> $dataEvent");
         if (eventModel.type == 'fin' ||
             eventModel.msgtype == 'stanza' ||
             eventModel.msgtype == 'chat') {

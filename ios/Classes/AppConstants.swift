@@ -67,6 +67,7 @@ struct xmppChatType {
     static let GROUPCHAT : String = "groupchat"
     static let CHAT : String = "chat"
     static let NORMAL : String = "normal"
+    static let STANZA : String = "stanza"
 }
 struct xmppConstants {
     static let Conference : String = "conference"
